@@ -38,27 +38,16 @@ void monitora4A20(void)
 
         if (++count >= 20)
         {
-            vlR4a20_1 /= count; // média dos 20 valores
-            vlR4a20_1 = (vlR4a20_1 + 309.17) / 220.10;
 
-            // Lógica para calcular o PWM
-            if (time_counter_sa < Josue)
-            {
-                pwm = 80; // 100% de duty cycle
-            }
-            else if (time_counter_sa >= Josue && time_counter_sa < 2 *  Josue)
-            {
-                pwm = 100; // Duty cycle intermediário
-            }
-            else if (time_counter_sa >= 2 * Josue  && time_counter_sa < Josue * 3)
-            {
-              pwm = 150; // 0% de duty cycle
-            }
-            else if (time_counter_sa >= Josue * 3 && time_counter_sa < Josue * 4){
-              pwm = 200; 
-            }else{
-              pwm = 0;
-            }
+            vlR4a20_1 = vlR4a20_1 / count; // média dos 20 valores
+            vlR4a20_1 = map(vlR4a20_1,0,4096,4,20);
+ 
+            vlR4a20_1 = (0.99517397 * vlR4a20_1) + 0.17689519;
+            
+
+
+            pwm = 255; // 100% de duty cycle
+
 
             IIKit.disp.setText(3, ("T1:" + String(vlR4a20_1)).c_str());
             time_counter_sa = (millis() / 1000);
@@ -96,8 +85,8 @@ void setup()
     attachInterrupt(CHNivel, trip_func, CHANGE);
 
     ledcAttachPin(def_pin_W4a20_1, IdCanalValvula); // Atribui o pino ao canal de PWM.
-    ledcSetup(IdCanalValvula, 19000, 8);           // Configura o canal de PWM.
-    ledcWrite(IdCanalValvula, 0);                  // Inicializa o PWM com duty cycle de 0%.
+    ledcSetup(IdCanalValvula, 19000, 8);            // Configura o canal de PWM.
+    ledcWrite(IdCanalValvula, 0);                   // Inicializa o PWM com duty cycle de 0%.
 
     IIKit.rtn_1.onValueChanged([](uint8_t status)
     {
